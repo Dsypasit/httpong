@@ -17,7 +17,8 @@ type Req struct {
 // read request from client
 func ReadReq(conn net.Conn) (req Req) {
 	// var arr []byte
-	a := make([]byte, 200)
+	size := 4 << 10
+	a := make([]byte, size)
 	// conn.SetDeadline(time.Now().Add(1 * time.Second))
 	// conn.SetReadDeadline(time.Now().Add(1 * time.Second))
 	_, err := conn.Read(a)
