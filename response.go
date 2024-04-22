@@ -6,12 +6,9 @@ import (
 	"io"
 )
 
-type Res struct {
-	Status  int
-	Message string
-}
+type Res struct{}
 
-func ResponseString(conn io.ReadWriter, message string, statusCode int) {
+func (r Res) ResponseString(conn io.ReadWriter, message string, statusCode int) error {
 	output := new(bytes.Buffer)
 	fmt.Fprintf(output, "HTTP/1.1 %d OK\r\n", statusCode)
 	fmt.Fprintf(output, "Content-Type: text/plain\r\n")
@@ -20,5 +17,6 @@ func ResponseString(conn io.ReadWriter, message string, statusCode int) {
 	fmt.Fprintf(output, "\r\n")
 	fmt.Fprintf(output, "%v", message)
 
-	io.Copy(conn, output)
+	_, err := io.Copy(conn, output)
+	return err
 }

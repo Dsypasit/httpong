@@ -18,6 +18,15 @@ func newRouter() Router {
 	}
 }
 
+func (r *Router) FindRoute(req Req) *Route {
+	for _, route := range r.route {
+		if route.Path == req.Path && route.Method == req.Method {
+			return &route
+		}
+	}
+	return nil
+}
+
 func (r *Router) registerRoute(rg Route) error {
 	r.route = append(r.route, rg)
 	return nil

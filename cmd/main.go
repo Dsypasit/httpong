@@ -1,28 +1,23 @@
 package main
 
 import (
-	"net"
+	"fmt"
 
 	"github.com/Dsypasit/httpong"
 )
 
 func main() {
-	ln, err := net.Listen("tcp", ":8080")
+	config := httpong.Config{
+		Addr: ":8080",
+	}
+	app := httpong.NewWithConfig(config)
+
+	app.GET("/", func(ctx *httpong.Context) error {
+		return ctx.Send(200, "hello world")
+	})
+
+	err := app.Run()
 	if err != nil {
-		// handle error
+		fmt.Printf("failed to run: %v", err)
 	}
-	for {
-		conn, err := ln.Accept()
-		if err != nil {
-			// handle error
-		}
-		go handleConnection(conn)
-	}
-}
-
-func handleConnection(conn net.Conn) {
-	defer conn.Close()
-
-	httpong.ReadReq(conn)
-	httpong.ResponseString(conn, "hello world", 200)
 }

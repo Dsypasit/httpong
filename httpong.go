@@ -33,20 +33,28 @@ func (a *App) Run() error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("running in port ", a.config.Addr)
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
 			fmt.Println(err)
 		}
-		go handleConnection(conn)
+		go handleConnection(conn, a.router)
 	}
 }
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, router Router) {
 	defer conn.Close()
 
-	ReadReq(conn)
-	ResponseString(conn, "hello world", 200)
+	req := ReadReq(conn)
+	route := router.FindRoute(req)
+	context := newContext(req, conn)
+	if route == nil {
+		context.res.ResponseString(conn, "failed to access path", 404)
+		return
+	}
+	fmt.Println(route, context)
+	route.Function(context)
 }
 
 func (a *App) RegisterRoute(method string, path string, fn Handler) {
