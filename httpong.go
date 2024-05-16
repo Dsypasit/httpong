@@ -2,7 +2,11 @@ package httpong
 
 import (
 	"fmt"
+	"log"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 type Config struct {
@@ -34,13 +38,24 @@ func (a *App) Run() error {
 		return err
 	}
 	fmt.Println("running in port ", a.config.Addr)
-	for {
-		conn, err := ln.Accept()
-		if err != nil {
-			fmt.Println(err)
+
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		for {
+			conn, err := ln.Accept()
+			if err != nil {
+				fmt.Println(err)
+			}
+			go handleConnection(conn, a.router)
 		}
-		go handleConnection(conn, a.router)
-	}
+	}()
+
+	<-sigCh
+
+	log.Println("server shutting down..")
+	return nil
 }
 
 func handleConnection(conn net.Conn, router Router) {

@@ -8,7 +8,7 @@ import (
 
 func main() {
 	config := httpong.Config{
-		Addr: ":8080",
+		Addr: ":8000",
 	}
 	app := httpong.NewWithConfig(config)
 
