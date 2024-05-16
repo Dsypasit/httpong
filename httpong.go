@@ -1,7 +1,6 @@
 package httpong
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -10,7 +9,8 @@ import (
 )
 
 type Config struct {
-	Addr string
+	Addr  string
+	Debug bool
 }
 
 type App struct {
@@ -37,7 +37,7 @@ func (a *App) Run() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("running in port ", a.config.Addr)
+	log.Println("running in port ", a.config.Addr)
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
@@ -46,7 +46,7 @@ func (a *App) Run() error {
 		for {
 			conn, err := ln.Accept()
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 			go handleConnection(conn, a.router)
 		}
@@ -68,7 +68,7 @@ func handleConnection(conn net.Conn, router Router) {
 		context.res.ResponseString(conn, "failed to access path", 404)
 		return
 	}
-	fmt.Println(route, context)
+	log.Println(route, context)
 	route.Function(context)
 }
 
